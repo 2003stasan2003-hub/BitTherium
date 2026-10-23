@@ -35,13 +35,23 @@ st.markdown(
         background-color: #ff4b4b !important;
         color: white !important;
     }
-    /* Адаптивність для мобільних пристроїв (Android UX) */
+    /* Стиль для фірмового круглого логотипа BitTherium */
+    .brand-logo {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 55px;
+        height: 55px;
+        background: linear-gradient(135deg, #f7931a 0%, #627eea 100%);
+        border-radius: 50%;
+        color: white;
+        font-size: 24px;
+        font-weight: bold;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    }
     @media (max-width: 768px) {
         .stMetric {
             margin-bottom: 10px;
-        }
-        h1 {
-            font-size: 1.5rem !important;
         }
     }
     </style>
@@ -49,9 +59,10 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
+# Відновлений фірмовий дизайн заголовка з круглим логотипом
 col_logo, col_title = st.columns([1, 11])
 with col_logo:
-    st.markdown("### ₿Ξ")
+    st.markdown('<div class="brand-logo">₿Ξ</div>', unsafe_allow_html=True)
 with col_title:
     st.title("BitTherium 1.0 — Професійний Криптотрейдинговий Термінал")
 
@@ -323,15 +334,26 @@ if sel_btn and st.session_state.system_active:
     })
     st.error(f"Виконано ордер SELL для {selected_pair} на суму {amount} USDT.")
 
+# Виведення таблиці історії ордерів з можливістю експорту
 st.markdown("---")
 st.subheader("📜 Історія ордерів поточної сесії")
 if st.session_state.trade_history:
     history_df = pd.DataFrame(st.session_state.trade_history)
     st.dataframe(history_df, use_container_width=True)
+    
+    # Додано кнопку збереження (експорту) історії
+    csv_data = history_df.to_csv(index=False).encode('utf-8')
+    st.download_button(
+        label="📥 Експортувати історію у CSV",
+        data=csv_data,
+        file_name='bittherium_trade_history.csv',
+        mime='text/csv',
+        use_container_width=True
+    )
 else:
     st.info("Поки що немає виконаних ордерів у цій сесії.")
 
 st.markdown("---")
 st.success(
-    "🚀 BitTherium 1.0 успішно оновлено: додано адаптивний мобільний дизайн та оптимізовано UX для Android і ПК!"
+    "🚀 BitTherium 1.0 успішно оновлено: повернено фірмовий логотип ₿Ξ та додано експорт історії ордерів у CSV!"
 )
