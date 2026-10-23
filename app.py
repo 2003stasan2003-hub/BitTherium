@@ -71,7 +71,7 @@ st.markdown(
     }
     .exact-brand-title {
         font-size: 15px;
-        font-weight: 800;
+        font-weight: 300;
         color: #ffffff;
         letter-spacing: 0.5px;
         line-height: 1.1;
