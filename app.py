@@ -35,6 +35,15 @@ st.markdown(
         background-color: #ff4b4b !important;
         color: white !important;
     }
+    /* Адаптивність для мобільних пристроїв (Android UX) */
+    @media (max-width: 768px) {
+        .stMetric {
+            margin-bottom: 10px;
+        }
+        h1 {
+            font-size: 1.5rem !important;
+        }
+    }
     </style>
 """,
     unsafe_allow_html=True,
@@ -191,7 +200,7 @@ st.plotly_chart(fig, use_container_width=True)
 
 st.markdown("---")
 
-# Новий модуль: Налаштування цінових сповіщень (Price Alerts)
+# Модуль: Налаштування цінових сповіщень (Price Alerts)
 st.subheader("🔔 Система цінових сповіщень (Price Alerts)")
 alert_col1, alert_col2 = st.columns([2, 1])
 
@@ -287,7 +296,7 @@ with trade_col2:
 with trade_col3:
     st.markdown("### Дії")
     buy_btn = st.button("🟢 BUY / LONG", use_container_width=True, disabled=not st.session_state.system_active)
-    sell_btn = st.button("🔴 SELL / SHORT", use_container_width=True, disabled=not st.session_state.system_active)
+    sel_btn = st.button("🔴 SELL / SHORT", use_container_width=True, disabled=not st.session_state.system_active)
 
 if not st.session_state.system_active:
     st.warning("⚠️ Торговий термінал зупинено або спрацював захисний Kill Switch.")
@@ -303,7 +312,7 @@ if buy_btn and st.session_state.system_active:
     })
     st.success(f"Виконано ордер BUY для {selected_pair} на суму {amount} USDT.")
 
-if sell_btn and st.session_state.system_active:
+if sel_btn and st.session_state.system_active:
     st.session_state.trade_history.insert(0, {
         "Тип": "SELL / SHORT",
         "Пара": selected_pair,
@@ -324,5 +333,5 @@ else:
 
 st.markdown("---")
 st.success(
-    "🚀 BitTherium 1.0 успішно оновлено: інтегровано модуль цінових сповіщень (Price Alerts)!"
+    "🚀 BitTherium 1.0 успішно оновлено: додано адаптивний мобільний дизайн та оптимізовано UX для Android і ПК!"
 )
