@@ -45,18 +45,6 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# Шапка термінала: фірмовий логотип (зображення) + назва
-col_logo, col_title = st.columns([1, 11])
-with col_logo:
-    if os.path.exists("logo.png"):
-        st.image("logo.png", width=50)
-    else:
-        st.markdown("### ₿Ξ")
-with col_title:
-    st.title("BitTherium 1.0 — Професійний Криптотрейдинговий Термінал")
-
-st.markdown("---")
-
 # Підключення до стабільного публічного API CoinGecko
 @st.cache_data(ttl=15)
 def get_live_prices():
@@ -104,36 +92,53 @@ if 'system_active' not in st.session_state:
 if 'price_alerts' not in st.session_state:
     st.session_state.price_alerts = []
 
-# Сайдбар (Системне керування та безпека)
+# САЙДБАР: Логотип зверху у крайньому лівому кутку, а під ним солідна назва
 with st.sidebar:
-  st.header("⚙️ Керування системою")
-  if live_data['success']:
-      st.markdown("**Статус з'єднання:** <span style='color:green;'>● Онлайн (Живі дані)</span>", unsafe_allow_html=True)
-  else:
-      st.markdown("**Статус з'єднання:** <span style='color:orange;'>● Офлайн (Резерв)</span>", unsafe_allow_html=True)
+    if os.path.exists("logo.png"):
+        st.image("logo.png", width=110)
+    else:
+        st.markdown("### ₿Ξ")
+    
+    st.markdown(
+        """
+        <div style="margin-top: -5px; margin-bottom: 10px;">
+            <span style="font-size: 18px; font-weight: bold; color: #ffffff; letter-spacing: 0.5px;">BitTherium 1.0</span><br>
+            <span style="font-size: 11px; color: #9ca3af; text-transform: uppercase; letter-spacing: 1px;">Професійний термінал</span>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+    
+    st.markdown("---")
+    st.header("⚙️ Керування системою")
+    if live_data['success']:
+        st.markdown("**Статус з'єднання:** <span style='color:green;'>● Онлайн (Живі дані)</span>", unsafe_allow_html=True)
+    else:
+        st.markdown("**Статус з'єднання:** <span style='color:orange;'>● Офлайн (Резерв)</span>", unsafe_allow_html=True)
 
-  st.markdown("---")
-  col1, col2 = st.columns(2)
-  with col1:
-    start_btn = st.button("▶ Запуск")
-  with col2:
-    stop_btn = st.button("⏸ Зупинка")
+    st.markdown("---")
+    col_s1, col_s2 = st.columns(2)
+    with col_s1:
+        start_btn = st.button("▶ Запуск")
+    with col_s2:
+        stop_btn = st.button("⏸ Зупинка")
 
-  if start_btn:
-    st.session_state.system_active = True
-    st.success("Термінал запущено.")
-  if stop_btn:
-    st.session_state.system_active = False
-    st.warning("Термінал призупинено.")
+    if start_btn:
+        st.session_state.system_active = True
+        st.success("Термінал запущено.")
+    if stop_btn:
+        st.session_state.system_active = False
+        st.warning("Термінал призупинено.")
 
-  st.markdown("---")
-  st.subheader("🚨 Безпека")
-  if st.button("KILL SWITCH", key="kill", help="Екстрене закриття позицій"):
-    st.session_state.system_active = False
-    st.session_state.trade_history = []
-    st.error("УВАГА: Активовано Kill Switch!")
+    st.markdown("---")
+    st.subheader("🚨 Безпека")
+    if st.button("KILL SWITCH", key="kill", help="Екстрене закриття позицій"):
+        st.session_state.system_active = False
+        st.session_state.trade_history = []
+        st.error("УВАГА: Активовано Kill Switch!")
 
-# ГЛОБАЛЬНЕ ГОРИЗОНТАЛЬНЕ МЕНЮ ВКЛАДОК (як на макеті)
+# ГОЛОВНИЙ ЕКРАН (Без громіздких перекреслених написів)
+# ГЛОБАЛЬНЕ ГОРИЗОНТАЛЬНЕ МЕНЮ ВКЛАДОК
 tab_home, tab_market_mgmt, tab_analytics, tab_macro, tab_params, tab_quotes, tab_history = st.tabs([
     "🏠 Головна", 
     "📊 Ринк-Менеджмент", 
@@ -194,8 +199,7 @@ with tab_analytics:
     with a1:
         st.markdown("### 🐋 Whale Tracking (Smart Money)")
         st.info("Binance → Хранилище: 1500 BTC ($101.5M USDT)")
-        info_col = "OKX → Coinbase: 50,000 ETH ($12M USDT)"
-        st.warning(info_col)
+        st.warning("OKX → Coinbase: 50,000 ETH ($12M USDT)")
     with a2:
         st.markdown("### 🔥 Ліквідації: Теплова мапа")
         liq_df = pd.DataFrame(np.random.randint(100, 1000, size=(4, 2)), columns=["Ціновий рівень ($)", "Обсяг ($M)"])
@@ -256,4 +260,4 @@ with tab_history:
         st.info("Історія угод порожня.")
 
 st.markdown("---")
-st.success("🚀 BitTherium 1.0 успішно оновлено до фінальної версії з горизонтальним меню вкладок та підтримкою логотипа!")
+st.success("🚀 BitTherium 1.0 успішно оновлено: логотип розміщено у верхньому лівому кутку сайдбара, а під ним — солідний компактний підпис!")
