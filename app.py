@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 import pandas as pd
 import numpy as np
 import requests
+import plotly.graph_objects as go
 
 load_dotenv()
 
@@ -84,7 +85,7 @@ def get_live_prices():
 
 live_data = get_live_prices()
 
-# Ініціалізація сесійної пам'яті для історії ордерів та стану захисту
+# Ініціалізація сесійної пам'яті
 if 'trade_history' not in st.session_state:
     st.session_state.trade_history = []
 
@@ -138,7 +139,7 @@ with st.sidebar:
     st.session_state.system_active = False
     st.session_state.trade_history = []
     st.error(
-        "УВАГА: Активовано Kill Switch! Усі торги зупинено, позиції скасовано, історія очищена."
+        "УВАГА: Активовано Kill Switch! Усі торги зупинено, позиції скасовано."
     )
 
 st.subheader("📊 Ринкові котирування в реальному часі")
@@ -156,12 +157,34 @@ selected_pair = st.selectbox(
 )
 
 base_price = live_data['BTC'] if "BTC" in selected_pair else (live_data['ETH'] if "ETH" in selected_pair else live_data['SOL'])
-chart_data = pd.DataFrame(
-    np.random.randn(20, 1) * (base_price * 0.001) + base_price,
-    columns=["Ціна"],
+
+# Генерація професійних свічкових даних (Candlestick Data) для Plotly
+np.random.seed(42)
+dates = pd.date_range(end=pd.Timestamp.now(), periods=30, freq='H')
+opens = base_price + np.random.randn(30).cumsum() * (base_price * 0.001)
+closes = opens + np.random.randn(30) * (base_price * 0.0005)
+highs = np.maximum(opens, closes) + np.abs(np.random.randn(30)) * (base_price * 0.0003)
+lows = np.minimum(opens, closes) - np.abs(np.random.randn(30)) * (base_price * 0.0003)
+
+fig = go.Figure(data=[go.Candlestick(
+    x=dates,
+    open=opens,
+    high=highs,
+    low=lows,
+    close=closes,
+    increasing_line_color='#26a69a',
+    decreasing_line_color='#ef5350'
+)])
+
+fig.update_layout(
+    title=f"Інтерактивний графік свічок ({selected_pair})",
+    template="plotly_dark",
+    xaxis_rangeslider_visible=False,
+    height=450,
+    margin=dict(l=10, r=10, t=30, b=10)
 )
 
-st.line_chart(chart_data)
+st.plotly_chart(fig, use_container_width=True)
 
 st.markdown("---")
 
@@ -185,19 +208,17 @@ with col_b:
   )
   st.dataframe(liquidation_data, use_container_width=True)
 
-# Новий модуль: Глобальний контекст циклів та ліміти захисту
 st.markdown("---")
 st.subheader("🛡️ Глобальний контекст циклів та система захисту портфеля")
 
 cycle_col1, cycle_col2 = st.columns(2)
 with cycle_col1:
     st.markdown("**Макроконтекст (Цикл халвінгів):**")
-    st.success("📈 **Фаза ринку:** Постхалвінговий бичачий цикл (Зона накопичення ліквідності). Дефіцит пропозиції на біржах високий.")
+    st.success("📈 **Фаза ринку:** Постхалвінговий бичачий цикл (Зона накопичення ліквідності).")
 with cycle_col2:
     st.markdown("**Контроль ризиків (Ліміт сесії):**")
     st.metric(label="Максимальний допустимий збиток", value="3.0%", delta="Безпечно (Ліміт активний)")
 
-# Модуль: Технічні індикатори й математичні фільтри
 st.markdown("---")
 st.subheader("📈 Технічні індикатори та математичні фільтри (RSI / Обсяги)")
 
@@ -209,7 +230,6 @@ with ind_col2:
 with ind_col3:
     st.metric(label="Обсяг торгів (24h)", value="$28.4B", delta="Високий тиск")
 
-# Модуль: Фільтрація новин та макрофакторів
 st.markdown("---")
 st.subheader("📰 Штучний інтелект: Фільтрація новин та макрофакторів (Real-Time Feed)")
 
@@ -217,7 +237,7 @@ news_col1, news_col2 = st.columns(2)
 
 with news_col1:
     st.markdown("**Останні відфільтровані новини:**")
-    st.success("🟢 **[ФРС]** Рівень базової ставки залишено без змін. Реакція ринку: позитивна для ліквідних активів.")
+    st.success("🟢 **[ФРС]** Рівень базової ставки залишено без змін. Реакція ринку: позитивна.")
     st.info("🔵 **[ETF]** Приплив капіталу в спотові Bitcoin-ETF за добу перевищив $420 млн.")
 
 with news_col2:
@@ -245,7 +265,7 @@ with trade_col3:
     sell_btn = st.button("🔴 SELL / SHORT", use_container_width=True, disabled=not st.session_state.system_active)
 
 if not st.session_state.system_active:
-    st.warning("⚠️ Торговий термінал зупинено або спрацював захисний Kill Switch. Виконання ордерів заблоковано.")
+    st.warning("⚠️ Торговий термінал зупинено або спрацював захисний Kill Switch.")
 
 if buy_btn and st.session_state.system_active:
     st.session_state.trade_history.insert(0, {
@@ -256,7 +276,7 @@ if buy_btn and st.session_state.system_active:
         "Stop-Loss": stop_loss,
         "Take-Profit": take_profit
     })
-    st.success(f"Виконано ордер BUY для {selected_pair} на суму {amount} USDT (SL: {stop_loss:,.2f}, TP: {take_profit:,.2f}).")
+    st.success(f"Виконано ордер BUY для {selected_pair} на суму {amount} USDT.")
 
 if sell_btn and st.session_state.system_active:
     st.session_state.trade_history.insert(0, {
@@ -267,9 +287,8 @@ if sell_btn and st.session_state.system_active:
         "Stop-Loss": stop_loss,
         "Take-Profit": take_profit
     })
-    st.error(f"Виконано ордер SELL для {selected_pair} на суму {amount} USDT (SL: {stop_loss:,.2f}, TP: {take_profit:,.2f}).")
+    st.error(f"Виконано ордер SELL для {selected_pair} на суму {amount} USDT.")
 
-# Виведення таблиці історії ордерів
 st.markdown("---")
 st.subheader("📜 Історія ордерів поточної сесії")
 if st.session_state.trade_history:
@@ -280,5 +299,5 @@ else:
 
 st.markdown("---")
 st.success(
-    "🚀 BitTherium 1.0 повністю завершено: інтегровано глобальний цикл халвінгів, контроль лімітів та захисний Kill Switch!"
+    "🚀 BitTherium 1.0 успішно оновлено: інтегровано професійні інтерактивні графіки японських свічок (Plotly)!"
 )
