@@ -36,7 +36,7 @@ st.markdown(
         color: white !important;
     }
     
-    /* ЗНИЩЕННЯ СТАНДАРТНИХ ВІДСТУПІВ САЙДБАРА STREAMLIT */
+    /* ПОВНЕ ЗНИЩЕННЯ ВІДСТУПІВ САЙДБАРА ДЛЯ ІДЕАЛЬНОГО КУТКА */
     section[data-testid="stSidebar"] {
         top: 0px !important;
     }
@@ -46,11 +46,11 @@ st.markdown(
     }
     section[data-testid="stSidebar"] div[data-testid="stVerticalBlock"] > div:first-child {
         padding-top: 0px !important;
-        margin-top: -30px !important;
+        margin-top: -35px !important;
     }
 
-    /* БЕЗШОВНИЙ ІДЕАЛЬНИЙ БЛОК БРЕНДУ У САМОМУ ВЕРХНЬОМУ КУТКУ */
-    .absolute-hero-brand {
+    /* БЕЗШОВНИЙ БРЕНДОВИЙ БЛОК НА ПРОЗОРОМУ ФОНІ */
+    .exact-brand-box {
         display: flex;
         align-items: center;
         gap: 12px;
@@ -59,15 +59,15 @@ st.markdown(
         margin: 0px !important;
         width: 100%;
     }
-    .absolute-hero-logo {
-        width: 85px !important;
+    .exact-brand-logo {
+        width: 85px !important; /* Великий кругий логотип (~2-3 см) */
         height: 85px !important;
         object-fit: contain;
         background: transparent !important;
         border: none !important;
         box-shadow: none !important;
     }
-    .absolute-hero-title {
+    .exact-brand-title {
         font-size: 24px;
         font-weight: 800;
         color: #ffffff;
@@ -75,7 +75,7 @@ st.markdown(
         line-height: 1.1;
         white-space: nowrap;
     }
-    .absolute-hero-subtitle {
+    .exact-brand-subtitle {
         font-size: 10px;
         color: #9ca3af;
         text-transform: uppercase;
@@ -140,7 +140,7 @@ if 'system_active' not in st.session_state:
 if 'price_alerts' not in st.session_state:
     st.session_state.price_alerts = []
 
-# САЙДБАР: Повністю безшовне розташування нового логотипа та назви в кутку
+# САЙДБАР: Повністю безшовне розташування логотипа та назви в самому кутку
 with st.sidebar:
     import base64
     
@@ -148,17 +148,17 @@ with st.sidebar:
     if os.path.exists("logo.png"):
         with open("logo.png", "rb") as f:
             encoded = base64.b64encode(f.read()).decode()
-            logo_html = f'<img src="data:image/png;base64,{encoded}" class="absolute-hero-logo">'
+            logo_html = f'<img src="data:image/png;base64,{encoded}" class="exact-brand-logo">'
     else:
         logo_html = '<span style="font-size: 45px;">₿Ξ</span>'
 
     st.markdown(
         f"""
-        <div class="absolute-hero-brand">
+        <div class="exact-brand-box">
             {logo_html}
             <div>
-                <span class="absolute-hero-title">BitTherium</span><br>
-                <span class="absolute-hero-subtitle">Професійний термінал</span>
+                <span class="exact-brand-title">BitTherium</span><br>
+                <span class="exact-brand-subtitle">Професійний термінал</span>
             </div>
         </div>
         """,
@@ -317,4 +317,4 @@ with tab_history:
         st.info("Історія угод порожня.")
 
 st.markdown("---")
-st.success("🚀 BitTherium 1.0 успішно оновлено!")
+st.success("🚀 BitTherium 1.0 працює стабільно!")
