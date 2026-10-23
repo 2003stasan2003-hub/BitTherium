@@ -158,9 +158,9 @@ selected_pair = st.selectbox(
 
 base_price = live_data['BTC'] if "BTC" in selected_pair else (live_data['ETH'] if "ETH" in selected_pair else live_data['SOL'])
 
-# Генерація професійних свічкових даних (Candlestick Data) для Plotly
+# Стабільна генерація свічкових даних без застарілих параметрів pandas
 np.random.seed(42)
-dates = pd.date_range(end=pd.Timestamp.now(), periods=30, freq='H')
+dates = [pd.Timestamp.now() - pd.Timedelta(hours=i) for i in range(30)][::-1]
 opens = base_price + np.random.randn(30).cumsum() * (base_price * 0.001)
 closes = opens + np.random.randn(30) * (base_price * 0.0005)
 highs = np.maximum(opens, closes) + np.abs(np.random.randn(30)) * (base_price * 0.0003)
@@ -299,5 +299,5 @@ else:
 
 st.markdown("---")
 st.success(
-    "🚀 BitTherium 1.0 успішно оновлено: інтегровано професійні інтерактивні графіки японських свічок (Plotly)!"
+    "🚀 BitTherium 1.0 успішно оновлено: виправлено помилку дат та повністю задеплоєно інтерактивні графіки свічок!"
 )
