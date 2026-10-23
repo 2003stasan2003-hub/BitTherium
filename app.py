@@ -46,37 +46,38 @@ st.markdown(
     }
     section[data-testid="stSidebar"] div[data-testid="stVerticalBlock"] > div:first-child {
         padding-top: 0px !important;
-        margin-top: -30px !important;
+        margin-top: -35px !important;
     }
 
-    /* БЕЗШОВНИЙ БРЕНДОВИЙ БЛОК ЗІ ЗБІЛЬШЕНИМ ЛОГОТИПОМ */
+    /* ВЕЛИКИЙ БРЕНДОВИЙ БЛОК (ЗБІЛЬШЕНИЙ ЛОГОТИП ДО 220px) */
     .exact-brand-box {
         display: flex;
+        flex-direction: column;
         align-items: center;
-        gap: 15px;
+        text-align: center;
         background: transparent !important;
         padding: 0px !important;
-        margin: 0px !important;
+        margin: 0px 0px 10px 0px !important;
         width: 100%;
     }
     .exact-brand-logo {
-        width: 140px !important; /* Збільшено логотип до 140px для заповнення простору */
-        height: 140px !important;
+        width: 220px !important; /* Великий акцентний логотип */
+        height: 220px !important;
         object-fit: contain;
         background: transparent !important;
         border: none !important;
         box-shadow: none !important;
+        margin-bottom: 5px !important;
     }
     .exact-brand-title {
-        font-size: 24px;
+        font-size: 26px;
         font-weight: 800;
         color: #ffffff;
         letter-spacing: 0.5px;
         line-height: 1.1;
-        white-space: nowrap;
     }
     .exact-brand-subtitle {
-        font-size: 10px;
+        font-size: 11px;
         color: #9ca3af;
         text-transform: uppercase;
         letter-spacing: 1.2px;
@@ -140,7 +141,7 @@ if 'system_active' not in st.session_state:
 if 'price_alerts' not in st.session_state:
     st.session_state.price_alerts = []
 
-# САЙДБАР: Розміщення збільшеного логотипа і назви в кутку
+# САЙДБАР: Розміщення великого центрованого логотипа і назви
 with st.sidebar:
     import base64
     
@@ -150,7 +151,7 @@ with st.sidebar:
             encoded = base64.b64encode(f.read()).decode()
             logo_html = f'<img src="data:image/png;base64,{encoded}" class="exact-brand-logo">'
     else:
-        logo_html = '<span style="font-size: 55px;">₿Ξ</span>'
+        logo_html = '<span style="font-size: 80px;">₿Ξ</span>'
 
     st.markdown(
         f"""
@@ -222,99 +223,4 @@ with tab_home:
     opens = base_price + np.random.randn(30).cumsum() * (base_price * 0.001)
     closes = opens + np.random.randn(30) * (base_price * 0.0005)
     highs = np.maximum(opens, closes) + np.abs(np.random.randn(30)) * (base_price * 0.0003)
-    lows = np.minimum(opens, closes) - np.abs(np.random.randn(30)) * (base_price * 0.0003)
-
-    fig = go.Figure(data=[go.Candlestick(
-        x=dates, open=opens, high=highs, low=lows, close=closes,
-        increasing_line_color='#26a69a', decreasing_line_color='#ef5350'
-    )])
-    fig.update_layout(template="plotly_dark", xaxis_rangeslider_visible=False, height=400, margin=dict(l=10, r=10, t=10, b=10))
-    st.plotly_chart(fig, use_container_width=True)
-
-with tab_market_mgmt:
-    st.subheader("🛡️ Управління ризиками та ботами")
-    r1, r2 = st.columns(2)
-    with r1:
-        st.markdown("**Ризик-менеджмент сесії:**")
-        st.metric(label="Максимальна просадка", value="5.0%")
-        st.metric(label="Стоп-лосс ліміт", value="2.0%")
-        st.metric(label="Трейлінг-симул", value="1.0%")
-    with r2:
-        st.markdown("**Керування ботами:**")
-        bots_data = pd.DataFrame({
-            "Bots": ["BitTherium Bot A", "ScalpeerX"],
-            "Status": ["Active", "Active"],
-            "P&L": ["+2.5%", "+1.1%"]
-        })
-        st.dataframe(bots_data, use_container_width=True)
-
-with tab_analytics:
-    st.subheader("🔬 Поглиблена аналітика та ліквідації")
-    a1, a2 = st.columns(2)
-    with a1:
-        st.markdown("### 🐋 Whale Tracking (Smart Money)")
-        st.info("Binance → Хранилище: 1500 BTC ($101.5M USDT)")
-        st.warning("OKX → Coinbase: 50,000 ETH ($12M USDT)")
-    with a2:
-        st.markdown("### 🔥 Ліквідації: Теплова мапа")
-        liq_df = pd.DataFrame(np.random.randint(100, 1000, size=(4, 2)), columns=["Ціновий рівень ($)", "Обсяг ($M)"])
-        st.dataframe(liq_df, use_container_width=True)
-
-with tab_macro:
-    st.subheader("📰 AI Macro Новини та Макрофактори")
-    n1, n2 = st.columns(2)
-    with n1:
-        st.success("🟢 **[ФРС]** Реакція ринку на збереження ставки позитивна.")
-        st.info("🔵 **[ETF]** Приплив капіталу в спотові Bitcoin-ETF тримається на високому рівні.")
-    with n2:
-        st.metric(label="Індекс страху та жадібності", value="74", delta="Жадібність")
-        st.metric(label="Домінування Bitcoin", value="54.2%", delta="+0.4%")
-
-with tab_params:
-    st.subheader("⚙️ Параметри та цінові алерти")
-    p1, p2 = st.columns(2)
-    with p1:
-        alert_target = st.number_input("Цільова ціна для сповіщення ($):", min_value=0.0, value=float(live_data['BTC'] * 1.02))
-        if st.button("➕ Додати алерт"):
-            if 'price_alerts' not in st.session_state:
-                st.session_state.price_alerts = []
-            st.session_state.price_alerts.append({"Пара": "BTC/USDT", "Ціль": alert_target})
-            st.success("Алерт додано!")
-    with p2:
-        if st.session_state.price_alerts:
-            st.dataframe(pd.DataFrame(st.session_state.price_alerts), use_container_width=True)
-        else:
-            st.info("Немає активних алертів.")
-
-with tab_quotes:
-    st.subheader("💱 Швидке виконання ордерів")
-    t1, t2, t3 = st.columns(3)
-    with t1:
-        amount = st.number_input("Обсяг (USDT):", min_value=10.0, value=100.0)
-    with t2:
-        stop_loss = st.number_input("Stop-Loss ($):", value=float(live_data['BTC'] * 0.95))
-        take_profit = st.number_input("Take-Profit ($):", value=float(live_data['BTC'] * 1.05))
-    with t3:
-        st.markdown("### Дії")
-        b_btn = st.button("🟢 BUY / LONG", use_container_width=True, disabled=not st.session_state.system_active)
-        s_btn = st.button("🔴 SELL / SHORT", use_container_width=True, disabled=not st.session_state.system_active)
-        
-        if b_btn:
-            st.session_state.trade_history.insert(0, {"Тип": "BUY", "Ціна": live_data['BTC'], "Обсяг": amount})
-            st.success("Ордер BUY виконано!")
-        if s_btn:
-            st.session_state.trade_history.insert(0, {"Тип": "SELL", "Ціна": live_data['BTC'], "Обсяг": amount})
-            st.error("Ордер SELL виконано!")
-
-with tab_history:
-    st.subheader("📜 Історія ордерів та сесуг")
-    if st.session_state.trade_history:
-        h_df = pd.DataFrame(st.session_state.trade_history)
-        st.dataframe(h_df, use_container_width=True)
-        csv = h_df.to_csv(index=False).encode('utf-8')
-        st.download_button("📥 Експортувати у CSV", data=csv, file_name="history.csv", mime="text/csv")
-    else:
-        st.info("Історія угод порожня.")
-
-st.markdown("---")
-st.success("🚀 BitTherium 1.0: розмір логотипа успішно збільшено!")
+    lows = np.minimum(opens, closes) - np.abs(np.random.randn(30)) * (base_
