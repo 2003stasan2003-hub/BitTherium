@@ -35,39 +35,56 @@ st.markdown(
         background-color: #ff4b4b !important;
         color: white !important;
     }
-    /* Стиль для ідеального злиття логотипа і назви BitTherium на загальному фоні */
-    .seamless-brand-box {
+    
+    /* АГРЕСИВНЕ ЗНИЩЕННЯ СТАНДАРТНИХ ВІДСТУПІВ STREAMLIT ДЛЯ САЙДБАРА */
+    section[data-testid="stSidebar"] {
+        top: 0px !important;
+    }
+    section[data-testid="stSidebar"] div.stBlock {
+        margin-top: 0px !important;
+        padding-top: 0px !important;
+    }
+    section[data-testid="stSidebar"] div[data-testid="stVerticalBlock"] {
+        gap: 0.5rem !important;
+    }
+    section[data-testid="stSidebar"] div[data-testid="stVerticalBlock"] > div:first-child {
+        padding-top: 0px !important;
+        margin-top: -25px !important;
+    }
+
+    /* БЕЗШОВНЕ ЗЛИТТЯ ТА ФІКСАЦІЯ ЛОГОТИПА У САМОМУ ВЕРХНЬОМУ КУТКУ */
+    .pixel-perfect-brand {
         display: flex;
         align-items: center;
         gap: 12px;
         background: transparent !important;
-        padding: 5px 0 15px 0;
+        padding: 0px !important;
+        margin: 0px !important;
+        width: 100%;
     }
-    .seamless-logo-img {
-        width: 65px !important;
-        height: 65px !important;
+    .pixel-perfect-logo {
+        width: 80px !important; /* Великий кругий логотип (~2 см) */
+        height: 80px !important;
         object-fit: contain;
         background: transparent !important;
         border: none !important;
     }
-    .seamless-brand-text {
-        display: flex;
-        flex-direction: column;
-    }
-    .seamless-title {
-        font-size: 21px;
+    .pixel-perfect-title {
+        font-size: 22px;
         font-weight: 800;
         color: #ffffff;
         letter-spacing: 0.5px;
         line-height: 1.1;
+        white-space: nowrap;
     }
-    .seamless-subtitle {
+    .pixel-perfect-subtitle {
         font-size: 10px;
         color: #9ca3af;
         text-transform: uppercase;
         letter-spacing: 1.2px;
         margin-top: 3px;
     }
+    
     @media (max-width: 768px) {
         .stMetric {
             margin-bottom: 10px;
@@ -125,7 +142,7 @@ if 'system_active' not in st.session_state:
 if 'price_alerts' not in st.session_state:
     st.session_state.price_alerts = []
 
-# САЙДБАР: Правильний логотип та ідеально написана назва BitTherium без жодних артефактів
+# САЙДБАР: Безшовне злиття та ідеальне розташування логотипа й назви в кутку
 with st.sidebar:
     import base64
     
@@ -133,17 +150,17 @@ with st.sidebar:
     if os.path.exists("logo.png"):
         with open("logo.png", "rb") as f:
             encoded = base64.b64encode(f.read()).decode()
-            logo_html = f'<img src="data:image/png;base64,{encoded}" class="seamless-logo-img">'
+            logo_html = f'<img src="data:image/png;base64,{encoded}" class="pixel-perfect-logo">'
     else:
-        logo_html = '<span style="font-size: 36px;">₿Ξ</span>'
+        logo_html = '<span style="font-size: 45px;">₿Ξ</span>'
 
     st.markdown(
         f"""
-        <div class="seamless-brand-box">
+        <div class="pixel-perfect-brand">
             {logo_html}
-            <div class="seamless-brand-text">
-                <span class="seamless-title">BitTherium</span>
-                <span class="seamless-subtitle">Професійний термінал</span>
+            <div>
+                <span class="pixel-perfect-title">BitTherium</span><br>
+                <span class="pixel-perfect-subtitle">Професійний термінал</span>
             </div>
         </div>
         """,
@@ -201,7 +218,7 @@ with tab_home:
     selected_pair = st.selectbox("Виберіть торгову пару для графіка:", ["BTC/USDT", "ETH/USDT", "SOL/USDT"])
     base_price = live_data['BTC'] if "BTC" in selected_pair else (live_data['ETH'] if "ETH" in selected_pair else live_data['SOL'])
 
-    # Інтерактивний графік свічок (Plotly)
+    # Інтерактивний графік свічок (Plotly)[cite: 1]
     np.random.seed(42)
     dates = [pd.Timestamp.now() - pd.Timedelta(hours=i) for i in range(30)][::-1]
     opens = base_price + np.random.randn(30).cumsum() * (base_price * 0.001)
@@ -300,4 +317,4 @@ with tab_history:
         st.info("Історія угод порожня.")
 
 st.markdown("---")
-st.success("🚀 BitTherium 1.0 успішно оновлено: напис виправлено на BitTherium, назва та безшовний логотип розміщені у верхньому лівому кутку сайдбара!")
+st.success("🚀 BitTherium 1.0 успішно оновлено: піксель-ідеальне безшовне розташування великого логотипа в самому верхньому кутку сайдбара!")
