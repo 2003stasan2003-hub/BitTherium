@@ -61,8 +61,8 @@ st.markdown(
         width: 100%;
     }
     .exact-brand-logo {
-        width: 220px !important;
-        height: 220px !important;
+        width: 520px !important;
+        height: 520px !important;
         object-fit: contain;
         background: transparent !important;
         border: none !important;
