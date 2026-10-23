@@ -36,7 +36,7 @@ st.markdown(
         color: white !important;
     }
     
-    /* ПРИБИРАЄМО ВЕРХНІЙ ВІДСТУП ТА ПІДНІМАЄМО ВСЕ У МАКСИМАЛЬНИЙ КУТОК */
+    /* ПРИБИРАЄМО ВЕРХНІЙ ВІДСТУП ТА ПІДНІМАЄМО У ВЕРХНІЙ КУТОК */
     section[data-testid="stSidebar"] {
         top: 0px !important;
     }
@@ -46,10 +46,10 @@ st.markdown(
     }
     section[data-testid="stSidebar"] div[data-testid="stVerticalBlock"] > div:first-child {
         padding-top: 0px !important;
-        margin-top: -50px !important; /* Примусове зсунення в самий верх */
+        margin-top: -50px !important;
     }
 
-    /* ГОРИЗОНТАЛЬНИЙ БЛОК: ЛОГОТИП ЗЛІВА, НАЗВА СПРАВА */
+    /* ГОРИЗОНТАЛЬНИЙ БЛОК: ЗБІЛЬШЕНИЙ ЛОГОТИП І НАЗВА СПРАВА */
     .exact-brand-box {
         display: flex;
         align-items: center;
@@ -60,8 +60,8 @@ st.markdown(
         width: 100%;
     }
     .exact-brand-logo {
-        width: 110px !important; /* Оптимальний великий розмір для ряду */
-        height: 110px !important;
+        width: 95px !important; /* Розмір точно під висоту зеленого кола */
+        height: 95px !important;
         object-fit: contain;
         background: transparent !important;
         border: none !important;
@@ -146,7 +146,7 @@ if 'system_active' not in st.session_state:
 if 'price_alerts' not in st.session_state:
     st.session_state.price_alerts = []
 
-# САЙДБАР: Максимально вгорі, логотип зліва, назва праворуч
+# САЙДБАР: Оновлений блок бренду
 with st.sidebar:
     import base64
     
@@ -323,4 +323,4 @@ with tab_history:
         st.info("Історія угод порожня.")
 
 st.markdown("---")
-st.success("🚀 BitTherium 1.0: логотип перенесено в самий верхній куток зліва, а назва тепер праворуч!")
+st.success("🚀 BitTherium 1.0: розмір логотипа успішно вирівняно по вашому зеленому колу!")
