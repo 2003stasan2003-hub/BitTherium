@@ -35,36 +35,34 @@ st.markdown(
         background-color: #ff4b4b !important;
         color: white !important;
     }
-    /* Повністю прозорий блок для логотипа прямо на темно-сірому фоні сайдбара */
+    /* Стиль для ідеального злиття логотипа і назви BitTherium на загальному фоні */
     .seamless-brand-box {
         display: flex;
         align-items: center;
-        gap: 15px;
+        gap: 12px;
         background: transparent !important;
-        padding: 10px 0 20px 0;
-        margin-left: -5px;
+        padding: 5px 0 15px 0;
     }
     .seamless-logo-img {
-        width: 75px !important; /* Великий розмір логотипа (близько 2 см) */
-        height: 75px !important;
+        width: 65px !important;
+        height: 65px !important;
         object-fit: contain;
         background: transparent !important;
         border: none !important;
-        box-shadow: none !important;
     }
     .seamless-brand-text {
         display: flex;
         flex-direction: column;
     }
     .seamless-title {
-        font-size: 22px;
+        font-size: 21px;
         font-weight: 800;
         color: #ffffff;
         letter-spacing: 0.5px;
         line-height: 1.1;
     }
     .seamless-subtitle {
-        font-size: 11px;
+        font-size: 10px;
         color: #9ca3af;
         text-transform: uppercase;
         letter-spacing: 1.2px;
@@ -127,9 +125,8 @@ if 'system_active' not in st.session_state:
 if 'price_alerts' not in st.session_state:
     st.session_state.price_alerts = []
 
-# САЙДБАР: Повністю безшовний великий логотип і назва на загальному темно-сірому фоні
+# САЙДБАР: Правильний логотип та ідеально написана назва BitTherium без жодних артефактів
 with st.sidebar:
-    # Завантажуємо зображення у вигляді баз64 або використовуємо чистий HTML для уникнення сірої рамки Streamlit
     import base64
     
     logo_html = ""
@@ -138,7 +135,7 @@ with st.sidebar:
             encoded = base64.b64encode(f.read()).decode()
             logo_html = f'<img src="data:image/png;base64,{encoded}" class="seamless-logo-img">'
     else:
-        logo_html = '<span style="font-size: 40px;">₿Ξ</span>'
+        logo_html = '<span style="font-size: 36px;">₿Ξ</span>'
 
     st.markdown(
         f"""
@@ -181,7 +178,7 @@ with st.sidebar:
         st.session_state.trade_history = []
         st.error("УВАГА: Активовано Kill Switch!")
 
-# ГОЛОВНИЙ ЕКРАН: Вкладки термінала
+# ГОЛОВНИЙ ЕКРАН: Горизонтальне меню вкладок
 tab_home, tab_market_mgmt, tab_analytics, tab_macro, tab_params, tab_quotes, tab_history = st.tabs([
     "🏠 Головна", 
     "📊 Ринк-Менеджмент", 
@@ -289,7 +286,7 @@ with tab_quotes:
             st.session_state.trade_history.insert(0, {"Тип": "BUY", "Ціна": live_data['BTC'], "Обсяг": amount})
             st.success("Ордер BUY виконано!")
         if s_btn:
-            st.session_state.trade_history.insert(0, {"Тиb": "SELL", "Ціна": live_data['BTC'], "Обсяг": amount})
+            st.session_state.trade_history.insert(0, {"Тип": "SELL", "Ціна": live_data['BTC'], "Обсяг": amount})
             st.error("Ордер SELL виконано!")
 
 with tab_history:
@@ -303,4 +300,4 @@ with tab_history:
         st.info("Історія угод порожня.")
 
 st.markdown("---")
-st.success("🚀 BitTherium 1.0 успішно оновлено: логотип збільшено та вмонтовано безпосередньо в загальний темно-сірий фоновий простір сайдбара без жодних рамок!")
+st.success("🚀 BitTherium 1.0 успішно оновлено: напис виправлено на BitTherium, назва та безшовний логотип розміщені у верхньому лівому кутку сайдбара!")
