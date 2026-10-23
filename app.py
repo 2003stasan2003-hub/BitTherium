@@ -92,6 +92,9 @@ if 'trade_history' not in st.session_state:
 if 'system_active' not in st.session_state:
     st.session_state.system_active = True
 
+if 'price_alerts' not in st.session_state:
+    st.session_state.price_alerts = []
+
 with st.sidebar:
   st.header("⚙️ Керування системою")
   if live_data['success']:
@@ -158,7 +161,7 @@ selected_pair = st.selectbox(
 
 base_price = live_data['BTC'] if "BTC" in selected_pair else (live_data['ETH'] if "ETH" in selected_pair else live_data['SOL'])
 
-# Стабільна генерація свічкових даних без застарілих параметрів pandas
+# Інтерактивний графік свічок через Plotly
 np.random.seed(42)
 dates = [pd.Timestamp.now() - pd.Timedelta(hours=i) for i in range(30)][::-1]
 opens = base_price + np.random.randn(30).cumsum() * (base_price * 0.001)
@@ -185,6 +188,28 @@ fig.update_layout(
 )
 
 st.plotly_chart(fig, use_container_width=True)
+
+st.markdown("---")
+
+# Новий модуль: Налаштування цінових сповіщень (Price Alerts)
+st.subheader("🔔 Система цінових сповіщень (Price Alerts)")
+alert_col1, alert_col2 = st.columns([2, 1])
+
+with alert_col1:
+    alert_target = st.number_input("Цільова ціна для сповіщення ($):", min_value=0.0, value=float(base_price * 1.02))
+
+with alert_col2:
+    st.markdown("### Дія")
+    set_alert_btn = st.button("➕ Додати алерт", use_container_width=True)
+
+if set_alert_btn:
+    st.session_state.price_alerts.append({"Пара": selected_pair, "Ціль": alert_target, "Поточна": base_price})
+    st.success(f"Алерт успішно встановлено для {selected_pair} на рівні ${alert_target:,.2f}!")
+
+if st.session_state.price_alerts:
+    st.markdown("**Активні сповіщення сесії:**")
+    alerts_df = pd.DataFrame(st.session_state.price_alerts)
+    st.dataframe(alerts_df, use_container_width=True)
 
 st.markdown("---")
 
@@ -299,5 +324,5 @@ else:
 
 st.markdown("---")
 st.success(
-    "🚀 BitTherium 1.0 успішно оновлено: виправлено помилку дат та повністю задеплоєно інтерактивні графіки свічок!"
+    "🚀 BitTherium 1.0 успішно оновлено: інтегровано модуль цінових сповіщень (Price Alerts)!"
 )
