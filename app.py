@@ -35,12 +35,40 @@ st.markdown(
         background-color: #ff4b4b !important;
         color: white !important;
     }
-    /* Стиль для великого логотипа на прозорому фоні в сайдбарі */
-    .sidebar-brand-container {
+    /* Повністю прозорий блок для логотипа прямо на темно-сірому фоні сайдбара */
+    .seamless-brand-box {
         display: flex;
         align-items: center;
-        gap: 12px;
-        padding: 5px 0 15px 0;
+        gap: 15px;
+        background: transparent !important;
+        padding: 10px 0 20px 0;
+        margin-left: -5px;
+    }
+    .seamless-logo-img {
+        width: 75px !important; /* Великий розмір логотипа (близько 2 см) */
+        height: 75px !important;
+        object-fit: contain;
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+    }
+    .seamless-brand-text {
+        display: flex;
+        flex-direction: column;
+    }
+    .seamless-title {
+        font-size: 22px;
+        font-weight: 800;
+        color: #ffffff;
+        letter-spacing: 0.5px;
+        line-height: 1.1;
+    }
+    .seamless-subtitle {
+        font-size: 11px;
+        color: #9ca3af;
+        text-transform: uppercase;
+        letter-spacing: 1.2px;
+        margin-top: 3px;
     }
     @media (max-width: 768px) {
         .stMetric {
@@ -99,24 +127,31 @@ if 'system_active' not in st.session_state:
 if 'price_alerts' not in st.session_state:
     st.session_state.price_alerts = []
 
-# САЙДБАР: Збільшений логотип у два-три рази поруч із солідною назвою без дублів
+# САЙДБАР: Повністю безшовний великий логотип і назва на загальному темно-сірому фоні
 with st.sidebar:
-    col_b1, col_b2 = st.columns([1, 1.4])
-    with col_b1:
-        if os.path.exists("logo.png"):
-            st.image("logo.png", width=140)  # Збільшено розмір логотипа
-        else:
-            st.markdown("### ₿Ξ")
-    with col_b2:
-        st.markdown(
-            """
-            <div style="padding-top: 15px;">
-                <span style="font-size: 19px; font-weight: 800; color: #ffffff; letter-spacing: 0.5px;">BitTherium</span><br>
-                <span style="font-size: 10px; color: #9ca3af; text-transform: uppercase; letter-spacing: 1px;">Професійний термінал</span>
+    # Завантажуємо зображення у вигляді баз64 або використовуємо чистий HTML для уникнення сірої рамки Streamlit
+    import base64
+    
+    logo_html = ""
+    if os.path.exists("logo.png"):
+        with open("logo.png", "rb") as f:
+            encoded = base64.b64encode(f.read()).decode()
+            logo_html = f'<img src="data:image/png;base64,{encoded}" class="seamless-logo-img">'
+    else:
+        logo_html = '<span style="font-size: 40px;">₿Ξ</span>'
+
+    st.markdown(
+        f"""
+        <div class="seamless-brand-box">
+            {logo_html}
+            <div class="seamless-brand-text">
+                <span class="seamless-title">BitTherium</span>
+                <span class="seamless-subtitle">Професійний термінал</span>
             </div>
-            """,
-            unsafe_allow_html=True
-        )
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
     
     st.markdown("---")
     st.header("⚙️ Керування системою")
@@ -254,7 +289,7 @@ with tab_quotes:
             st.session_state.trade_history.insert(0, {"Тип": "BUY", "Ціна": live_data['BTC'], "Обсяг": amount})
             st.success("Ордер BUY виконано!")
         if s_btn:
-            st.session_state.trade_history.insert(0, {"Тип": "SELL", "Ціна": live_data['BTC'], "Обсяг": amount})
+            st.session_state.trade_history.insert(0, {"Тиb": "SELL", "Ціна": live_data['BTC'], "Обсяг": amount})
             st.error("Ордер SELL виконано!")
 
 with tab_history:
@@ -268,4 +303,4 @@ with tab_history:
         st.info("Історія угод порожня.")
 
 st.markdown("---")
-st.success("🚀 BitTherium 1.0 успішно оновлено: збільшений логотип на прозорому фоні розміщено поруч із назвою BitTherium у сайдбарі!")
+st.success("🚀 BitTherium 1.0 успішно оновлено: логотип збільшено та вмонтовано безпосередньо в загальний темно-сірий фоновий простір сайдбара без жодних рамок!")
