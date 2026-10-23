@@ -36,7 +36,7 @@ st.markdown(
         color: white !important;
     }
     
-    /* ЗНИЩЕННЯ СТАНДАРТНИХ ВІДСТУПІВ САЙДБАРА STREAMLIT */
+    /* ПРИБИРАЄМО ВЕРХНІЙ ВІДСТУП ТА ПІДНІМАЄМО ВСЕ У МАКСИМАЛЬНИЙ КУТОК */
     section[data-testid="stSidebar"] {
         top: 0px !important;
     }
@@ -46,42 +46,47 @@ st.markdown(
     }
     section[data-testid="stSidebar"] div[data-testid="stVerticalBlock"] > div:first-child {
         padding-top: 0px !important;
-        margin-top: -35px !important;
+        margin-top: -50px !important; /* Примусове зсунення в самий верх */
     }
 
-    /* ВЕЛИКИЙ БРЕНДОВИЙ БЛОК */
+    /* ГОРИЗОНТАЛЬНИЙ БЛОК: ЛОГОТИП ЗЛІВА, НАЗВА СПРАВА */
     .exact-brand-box {
         display: flex;
-        flex-direction: column;
         align-items: center;
-        text-align: center;
+        gap: 15px;
         background: transparent !important;
         padding: 0px !important;
-        margin: 0px 0px 10px 0px !important;
+        margin: 0px !important;
         width: 100%;
     }
     .exact-brand-logo {
-        width: 520px !important;
-        height: 520px !important;
+        width: 110px !important; /* Оптимальний великий розмір для ряду */
+        height: 110px !important;
         object-fit: contain;
         background: transparent !important;
         border: none !important;
         box-shadow: none !important;
-        margin-bottom: 5px !important;
+    }
+    .exact-brand-text {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
     }
     .exact-brand-title {
-        font-size: 15px;
-        font-weight: 300;
+        font-size: 24px;
+        font-weight: 800;
         color: #ffffff;
         letter-spacing: 0.5px;
         line-height: 1.1;
+        white-space: nowrap;
     }
     .exact-brand-subtitle {
-        font-size: 11px;
+        font-size: 10px;
         color: #9ca3af;
         text-transform: uppercase;
         letter-spacing: 1.2px;
-        margin-top: 3px;
+        margin-top: 4px;
+        white-space: nowrap;
     }
     
     @media (max-width: 768px) {
@@ -141,7 +146,7 @@ if 'system_active' not in st.session_state:
 if 'price_alerts' not in st.session_state:
     st.session_state.price_alerts = []
 
-# САЙДБАР: Розміщення великого логотипа і назви
+# САЙДБАР: Максимально вгорі, логотип зліва, назва праворуч
 with st.sidebar:
     import base64
     
@@ -151,14 +156,14 @@ with st.sidebar:
             encoded = base64.b64encode(f.read()).decode()
             logo_html = f'<img src="data:image/png;base64,{encoded}" class="exact-brand-logo">'
     else:
-        logo_html = '<span style="font-size: 80px;">₿Ξ</span>'
+        logo_html = '<span style="font-size: 55px;">₿Ξ</span>'
 
     st.markdown(
         f"""
         <div class="exact-brand-box">
             {logo_html}
-            <div>
-                <span class="exact-brand-title">BitTherium</span><br>
+            <div class="exact-brand-text">
+                <span class="exact-brand-title">BitTherium</span>
                 <span class="exact-brand-subtitle">Професійний термінал</span>
             </div>
         </div>
@@ -217,7 +222,7 @@ with tab_home:
     selected_pair = st.selectbox("Виберіть торгову пару для графіка:", ["BTC/USDT", "ETH/USDT", "SOL/USDT"])
     base_price = live_data['BTC'] if "BTC" in selected_pair else (live_data['ETH'] if "ETH" in selected_pair else live_data['SOL'])
 
-    # Інтерактивний графік свічок (Plotly) з виправленою дужкою в рядку 226
+    # Інтерактивний графік свічок (Plotly)
     np.random.seed(42)
     dates = [pd.Timestamp.now() - pd.Timedelta(hours=i) for i in range(30)][::-1]
     opens = base_price + np.random.randn(30).cumsum() * (base_price * 0.001)
@@ -318,4 +323,4 @@ with tab_history:
         st.info("Історія угод порожня.")
 
 st.markdown("---")
-st.success("🚀 BitTherium 1.0: помилку виправлено, додаток працює стабільно!")
+st.success("🚀 BitTherium 1.0: логотип перенесено в самий верхній куток зліва, а назва тепер праворуч!")
