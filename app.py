@@ -36,7 +36,7 @@ st.markdown(
         color: white !important;
     }
     
-    /* ПОВНЕ ЗНИЩЕННЯ ВІДСТУПІВ САЙДБАРА ДЛЯ ІДЕАЛЬНОГО КУТКА */
+    /* ЗНИЩЕННЯ СТАНДАРТНИХ ВІДСТУПІВ САЙДБАРА STREAMLIT */
     section[data-testid="stSidebar"] {
         top: 0px !important;
     }
@@ -46,22 +46,22 @@ st.markdown(
     }
     section[data-testid="stSidebar"] div[data-testid="stVerticalBlock"] > div:first-child {
         padding-top: 0px !important;
-        margin-top: -35px !important;
+        margin-top: -30px !important;
     }
 
-    /* БЕЗШОВНИЙ БРЕНДОВИЙ БЛОК НА ПРОЗОРОМУ ФОНІ */
+    /* БЕЗШОВНИЙ БРЕНДОВИЙ БЛОК ЗІ ЗБІЛЬШЕНИМ ЛОГОТИПОМ */
     .exact-brand-box {
         display: flex;
         align-items: center;
-        gap: 12px;
+        gap: 15px;
         background: transparent !important;
         padding: 0px !important;
         margin: 0px !important;
         width: 100%;
     }
     .exact-brand-logo {
-        width: 85px !important; /* Великий кругий логотип (~2-3 см) */
-        height: 85px !important;
+        width: 140px !important; /* Збільшено логотип до 140px для заповнення простору */
+        height: 140px !important;
         object-fit: contain;
         background: transparent !important;
         border: none !important;
@@ -140,7 +140,7 @@ if 'system_active' not in st.session_state:
 if 'price_alerts' not in st.session_state:
     st.session_state.price_alerts = []
 
-# САЙДБАР: Повністю безшовне розташування логотипа та назви в самому кутку
+# САЙДБАР: Розміщення збільшеного логотипа і назви в кутку
 with st.sidebar:
     import base64
     
@@ -150,7 +150,7 @@ with st.sidebar:
             encoded = base64.b64encode(f.read()).decode()
             logo_html = f'<img src="data:image/png;base64,{encoded}" class="exact-brand-logo">'
     else:
-        logo_html = '<span style="font-size: 45px;">₿Ξ</span>'
+        logo_html = '<span style="font-size: 55px;">₿Ξ</span>'
 
     st.markdown(
         f"""
@@ -317,4 +317,4 @@ with tab_history:
         st.info("Історія угод порожня.")
 
 st.markdown("---")
-st.success("🚀 BitTherium 1.0 працює стабільно!")
+st.success("🚀 BitTherium 1.0: розмір логотипа успішно збільшено!")
