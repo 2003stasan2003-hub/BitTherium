@@ -36,53 +36,31 @@ st.markdown(
         color: white !important;
     }
     
-    /* АГРЕСИВНЕ ЗНИЩЕННЯ СТАНДАРТНИХ ВІДСТУПІВ STREAMLIT ДЛЯ САЙДБАРА */
-    section[data-testid="stSidebar"] {
-        top: 0px !important;
-    }
-    section[data-testid="stSidebar"] div.stBlock {
-        margin-top: 0px !important;
-        padding-top: 0px !important;
-    }
-    section[data-testid="stSidebar"] div[data-testid="stVerticalBlock"] {
-        gap: 0.5rem !important;
-    }
-    section[data-testid="stSidebar"] div[data-testid="stVerticalBlock"] > div:first-child {
-        padding-top: 0px !important;
-        margin-top: -25px !important;
-    }
-
-    /* БЕЗШОВНЕ ЗЛИТТЯ ТА ФІКСАЦІЯ ЛОГОТИПА У САМОМУ ВЕРХНЬОМУ КУТКУ */
-    .pixel-perfect-brand {
+    /* ІДЕАЛЬНЕ РОЗТАШУВАННЯ ВЕЛИКОГО ЛОГОТИПА НА ГОЛОВНОМУ ЕКРАНІ (ЯК НА ЕТАЛОНІ) */
+    .hero-brand-container {
         display: flex;
         align-items: center;
-        gap: 12px;
+        gap: 20px;
         background: transparent !important;
         padding: 0px !important;
-        margin: 0px !important;
-        width: 100%;
+        margin-top: -30px !important;
+        margin-bottom: 20px !important;
     }
-    .pixel-perfect-logo {
-        width: 80px !important; /* Великий кругий логотип (~2 см) */
-        height: 80px !important;
+    .hero-brand-logo {
+        width: 100px !important; /* Великий кругий логотип (~2-3 см) */
+        height: 100px !important;
         object-fit: contain;
         background: transparent !important;
         border: none !important;
+        box-shadow: none !important;
     }
-    .pixel-perfect-title {
-        font-size: 22px;
+    .hero-brand-title {
+        font-size: 38px;
         font-weight: 800;
-        color: #ffffff;
-        letter-spacing: 0.5px;
+        color: #e5e7eb;
+        letter-spacing: 1px;
         line-height: 1.1;
-        white-space: nowrap;
-    }
-    .pixel-perfect-subtitle {
-        font-size: 10px;
-        color: #9ca3af;
-        text-transform: uppercase;
-        letter-spacing: 1.2px;
-        margin-top: 3px;
+        font-family: sans-serif;
     }
     
     @media (max-width: 768px) {
@@ -142,32 +120,8 @@ if 'system_active' not in st.session_state:
 if 'price_alerts' not in st.session_state:
     st.session_state.price_alerts = []
 
-# САЙДБАР: Безшовне злиття та ідеальне розташування логотипа й назви в кутку
+# САЙДБАР: Тільки управління системою та безпека (без зайвих дрібних логотипів)
 with st.sidebar:
-    import base64
-    
-    logo_html = ""
-    if os.path.exists("logo.png"):
-        with open("logo.png", "rb") as f:
-            encoded = base64.b64encode(f.read()).decode()
-            logo_html = f'<img src="data:image/png;base64,{encoded}" class="pixel-perfect-logo">'
-    else:
-        logo_html = '<span style="font-size: 45px;">₿Ξ</span>'
-
-    st.markdown(
-        f"""
-        <div class="pixel-perfect-brand">
-            {logo_html}
-            <div>
-                <span class="pixel-perfect-title">BitTherium</span><br>
-                <span class="pixel-perfect-subtitle">Професійний термінал</span>
-            </div>
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
-    
-    st.markdown("---")
     st.header("⚙️ Керування системою")
     if live_data['success']:
         st.markdown("**Статус з'єднання:** <span style='color:green;'>● Онлайн (Живі дані)</span>", unsafe_allow_html=True)
@@ -195,7 +149,27 @@ with st.sidebar:
         st.session_state.trade_history = []
         st.error("УВАГА: Активовано Kill Switch!")
 
-# ГОЛОВНИЙ ЕКРАН: Горизонтальне меню вкладок
+# ГОЛОВНИЙ ЕКРАН: Розміщуємо великий логотип і назву в самому верху (як на другій картинці)
+import base64
+logo_html = ""
+if os.path.exists("logo.png"):
+    with open("logo.png", "rb") as f:
+        encoded = base64.b64encode(f.read()).decode()
+        logo_html = f'<img src="data:image/png;base64,{encoded}" class="hero-brand-logo">'
+else:
+    logo_html = '<span style="font-size: 50px;">₿Ξ</span>'
+
+st.markdown(
+    f"""
+    <div class="hero-brand-container">
+        {logo_html}
+        <span class="hero-brand-title">BitTherium</span>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+
+# ГЛОБАЛЬНЕ ГОРИЗОНТАЛЬНЕ МЕНЮ ВКЛАДОК
 tab_home, tab_market_mgmt, tab_analytics, tab_macro, tab_params, tab_quotes, tab_history = st.tabs([
     "🏠 Головна", 
     "📊 Ринк-Менеджмент", 
@@ -317,4 +291,4 @@ with tab_history:
         st.info("Історія угод порожня.")
 
 st.markdown("---")
-st.success("🚀 BitTherium 1.0 успішно оновлено: піксель-ідеальне безшовне розташування великого логотипа в самому верхньому кутку сайдбара!")
+st.success("🚀 BitTherium 1.0 успішно оновлено: великий кругий логотип і назва розташовані у верхній частині головного екрана точно як на еталонному макеті!")
