@@ -3,7 +3,7 @@ import streamlit as st
 from dotenv import load_dotenv
 import pandas as pd
 import numpy as np
-import ccxt
+import requests
 
 load_dotenv()
 
@@ -47,21 +47,28 @@ with col_title:
 
 st.markdown("---")
 
-# Підключення до публічного API Binance через ccxt із діагностикою помилок
-@st.cache_data(ttl=10)
+# Підключення до стабільного публічного API CoinGecko без гео-блокувань
+@st.cache_data(ttl=15)
 def get_live_prices():
     try:
-        exchange = ccxt.binance()
-        ticker_btc = exchange.fetch_ticker('BTC/USDT')
-        ticker_eth = exchange.fetch_ticker('ETH/USDT')
-        ticker_sol = exchange.fetch_ticker('SOL/USDT')
+        url = "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana&vs_currencies=usd&include_24hr_change=true"
+        response = requests.get(url, timeout=5)
+        data = response.json()
+        
+        btc_price = data['bitcoin']['usd']
+        eth_price = data['ethereum']['usd']
+        sol_price = data['solana']['usd']
+        
+        btc_change = data['bitcoin'].get('usd_24h_change', 0.0)
+        eth_change = data['ethereum'].get('usd_24h_change', 0.0)
+        
         return {
             'success': True,
-            'BTC': ticker_btc['last'],
-            'ETH': ticker_eth['last'],
-            'SOL': ticker_sol['last'],
-            'BTC_change': ticker_btc['percentage'] or 0.0,
-            'ETH_change': ticker_eth['percentage'] or 0.0,
+            'BTC': btc_price,
+            'ETH': eth_price,
+            'SOL': sol_price,
+            'BTC_change': round(btc_change, 2),
+            'ETH_change': round(eth_change, 2),
             'error': None
         }
     except Exception as e:
@@ -85,12 +92,12 @@ with st.sidebar:
   st.header("⚙️ Керування системою")
   if live_data['success']:
       st.markdown(
-          "**Статус з'єднання:** <span style='color:green;'>● Онлайн (Живі дані CCXT)</span>",
+          "**Статус з'єднання:** <span style='color:green;'>● Онлайн (Живі дані API)</span>",
           unsafe_allow_html=True,
       )
   else:
       st.markdown(
-          "**Статус з'єднання:** <span style='color:red;'>● Помилка підключення</span>",
+          "**Статус з'єднання:** <span style='color:orange;'>● Режим офлайн (Резервні дані)</span>",
           unsafe_allow_html=True,
       )
 
@@ -128,10 +135,7 @@ with st.sidebar:
     )
     st.session_state.trade_history = []
 
-st.subheader("📊 Ринкові котирування в реальному часі (Binance)")
-
-if not live_data['success']:
-    st.error(f"⚠️ **Причина збою мережі/API:** {live_data['error']}. Використовуються резервні котирування.")
+st.subheader("📊 Ринкові котирування в реальному часі")
 
 m1, m2, m3, m4 = st.columns(4)
 m1.metric(label="BTC/USDT", value=f"${live_data['BTC']:,.2f}", delta=f"{live_data['BTC_change']}%")
@@ -175,7 +179,7 @@ with col_b:
   )
   st.dataframe(liquidation_data, use_container_width=True)
 
-# Новий модуль: Фільтрація новин та макрофакторів
+# Модуль: Фільтрація новин та макрофакторів
 st.markdown("---")
 st.subheader("📰 Штучний інтелект: Фільтрація новин та макрофакторів (Real-Time Feed)")
 
@@ -243,5 +247,5 @@ else:
 
 st.markdown("---")
 st.success(
-    "🚀 BitTherium 1.0 успішно оновлено: додано модуль фільтрації новин та макрофакторів!"
+    "🚀 BitTherium 1.0 успішно оновлено: інтегровано стабільне API ринкових даних та фільтрацію новин!"
 )
