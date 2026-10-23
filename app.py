@@ -70,7 +70,7 @@ st.markdown(
         margin-bottom: 5px !important;
     }
     .exact-brand-title {
-        font-size: 26px;
+        font-size: 15px;
         font-weight: 800;
         color: #ffffff;
         letter-spacing: 0.5px;
