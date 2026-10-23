@@ -47,7 +47,7 @@ with col_title:
 
 st.markdown("---")
 
-# Підключення до публічного API Binance через ccxt для отримання реальних цін
+# Підключення до публічного API Binance через ccxt із діагностикою помилок
 @st.cache_data(ttl=10)
 def get_live_prices():
     try:
@@ -56,24 +56,43 @@ def get_live_prices():
         ticker_eth = exchange.fetch_ticker('ETH/USDT')
         ticker_sol = exchange.fetch_ticker('SOL/USDT')
         return {
+            'success': True,
             'BTC': ticker_btc['last'],
             'ETH': ticker_eth['last'],
             'SOL': ticker_sol['last'],
             'BTC_change': ticker_btc['percentage'] or 0.0,
-            'ETH_change': ticker_eth['percentage'] or 0.0
+            'ETH_change': ticker_eth['percentage'] or 0.0,
+            'error': None
         }
-    except Exception:
-        # Резервні значення, якщо немає інтернету або сталася помилка завантаження
-        return {'BTC': 67450.0, 'ETH': 3520.0, 'SOL': 145.0, 'BTC_change': 2.4, 'ETH_change': 1.8}
+    except Exception as e:
+        return {
+            'success': False,
+            'BTC': 67450.0,
+            'ETH': 3520.0,
+            'SOL': 145.0,
+            'BTC_change': 2.4,
+            'ETH_change': 1.8,
+            'error': str(e)
+        }
 
 live_data = get_live_prices()
 
+# Ініціалізація сесійної пам'яті для історії ордерів
+if 'trade_history' not in st.session_state:
+    st.session_state.trade_history = []
+
 with st.sidebar:
   st.header("⚙️ Керування системою")
-  st.markdown(
-      "**Статус з'єднання:** <span style='color:green;'>● Онлайн (Живі дані CCXT)</span>",
-      unsafe_allow_html=True,
-  )
+  if live_data['success']:
+      st.markdown(
+          "**Статус з'єднання:** <span style='color:green;'>● Онлайн (Живі дані CCXT)</span>",
+          unsafe_allow_html=True,
+      )
+  else:
+      st.markdown(
+          "**Статус з'єднання:** <span style='color:red;'>● Помилка підключення</span>",
+          unsafe_allow_html=True,
+      )
 
   if has_keys:
     st.markdown(
@@ -107,8 +126,12 @@ with st.sidebar:
     st.error(
         "УВАГА: Активовано Kill Switch! Усі торги зупинено, позиції закриваються."
     )
+    st.session_state.trade_history = []
 
 st.subheader("📊 Ринкові котирування в реальному часі (Binance)")
+
+if not live_data['success']:
+    st.error(f"⚠️ **Причина збою мережі/API:** {live_data['error']}. Використовуються резервні котирування.")
 
 m1, m2, m3, m4 = st.columns(4)
 m1.metric(label="BTC/USDT", value=f"${live_data['BTC']:,.2f}", delta=f"{live_data['BTC_change']}%")
@@ -156,23 +179,53 @@ st.markdown("---")
 
 st.subheader("⚡ Панель виконання ордерів (Trading Execution)")
 
-trade_col1, trade_col2 = st.columns(2)
+trade_col1, trade_col2, trade_col3 = st.columns(3)
 
 with trade_col1:
-  order_type = st.radio("Тип ордера:", ["Market", "Limit"])
-  amount = st.number_input("Обсяг (USDT):", min_value=10.0, value=100.0)
+    order_type = st.radio("Тип ордера:", ["Market", "Limit"])
+    amount = st.number_input("Обсяг (USDT):", min_value=10.0, value=100.0)
 
 with trade_col2:
-  st.markdown("### Дії")
-  buy_btn = st.button("🟢 BUY / LONG", use_container_width=True)
-  sell_btn = st.button("🔴 SELL / SHORT", use_container_width=True)
+    stop_loss = st.number_input("Stop-Loss ($):", min_value=0.0, value=float(base_price * 0.95))
+    take_profit = st.number_input("Take-Profit ($):", min_value=0.0, value=float(base_price * 1.05))
+
+with trade_col3:
+    st.markdown("### Дії")
+    buy_btn = st.button("🟢 BUY / LONG", use_container_width=True)
+    sell_btn = st.button("🔴 SELL / SHORT", use_container_width=True)
 
 if buy_btn:
-  st.success(f"Виконано ордер BUY для {selected_pair} на суму {amount} USDT.")
+    st.session_state.trade_history.insert(0, {
+        "Тип": "BUY / LONG",
+        "Пара": selected_pair,
+        "Ціна входу": base_price,
+        "Обсяг (USDT)": amount,
+        "Stop-Loss": stop_loss,
+        "Take-Profit": take_profit
+    })
+    st.success(f"Виконано ордер BUY для {selected_pair} на суму {amount} USDT (SL: {stop_loss:,.2f}, TP: {take_profit:,.2f}).")
+
 if sell_btn:
-  st.error(f"Виконано ордер SELL для {selected_pair} на суму {amount} USDT.")
+    st.session_state.trade_history.insert(0, {
+        "Тип": "SELL / SHORT",
+        "Пара": selected_pair,
+        "Ціна входу": base_price,
+        "Обсяг (USDT)": amount,
+        "Stop-Loss": stop_loss,
+        "Take-Profit": take_profit
+    })
+    st.error(f"Виконано ордер SELL для {selected_pair} на суму {amount} USDT (SL: {stop_loss:,.2f}, TP: {take_profit:,.2f}).")
+
+# Виведення таблиці історії ордерів
+st.markdown("---")
+st.subheader("📜 Історія ордерів поточної сесії")
+if st.session_state.trade_history:
+    history_df = pd.DataFrame(st.session_state.trade_history)
+    st.dataframe(history_df, use_container_width=True)
+else:
+    st.info("Поки що немає виконаних ордерів у цій сесії.")
 
 st.markdown("---")
 st.success(
-    "🚀 BitTherium 1.0 оновлено до реальних ринкових даних через CCXT!"
+    "🚀 BitTherium 1.0 успішно оновлено: додано модуль історії ордерів, управління ризиками та діагностику!"
 )
