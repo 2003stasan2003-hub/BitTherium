@@ -35,6 +35,13 @@ st.markdown(
         background-color: #ff4b4b !important;
         color: white !important;
     }
+    /* Стиль для великого логотипа на прозорому фоні в сайдбарі */
+    .sidebar-brand-container {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 5px 0 15px 0;
+    }
     @media (max-width: 768px) {
         .stMetric {
             margin-bottom: 10px;
@@ -92,22 +99,24 @@ if 'system_active' not in st.session_state:
 if 'price_alerts' not in st.session_state:
     st.session_state.price_alerts = []
 
-# САЙДБАР: Логотип зверху у крайньому лівому кутку, а під ним солідна назва
+# САЙДБАР: Збільшений логотип у два-три рази поруч із солідною назвою без дублів
 with st.sidebar:
-    if os.path.exists("logo.png"):
-        st.image("logo.png", width=110)
-    else:
-        st.markdown("### ₿Ξ")
-    
-    st.markdown(
-        """
-        <div style="margin-top: -5px; margin-bottom: 10px;">
-            <span style="font-size: 18px; font-weight: bold; color: #ffffff; letter-spacing: 0.5px;">BitTherium 1.0</span><br>
-            <span style="font-size: 11px; color: #9ca3af; text-transform: uppercase; letter-spacing: 1px;">Професійний термінал</span>
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
+    col_b1, col_b2 = st.columns([1, 1.4])
+    with col_b1:
+        if os.path.exists("logo.png"):
+            st.image("logo.png", width=140)  # Збільшено розмір логотипа
+        else:
+            st.markdown("### ₿Ξ")
+    with col_b2:
+        st.markdown(
+            """
+            <div style="padding-top: 15px;">
+                <span style="font-size: 19px; font-weight: 800; color: #ffffff; letter-spacing: 0.5px;">BitTherium</span><br>
+                <span style="font-size: 10px; color: #9ca3af; text-transform: uppercase; letter-spacing: 1px;">Професійний термінал</span>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
     
     st.markdown("---")
     st.header("⚙️ Керування системою")
@@ -137,8 +146,7 @@ with st.sidebar:
         st.session_state.trade_history = []
         st.error("УВАГА: Активовано Kill Switch!")
 
-# ГОЛОВНИЙ ЕКРАН (Без громіздких перекреслених написів)
-# ГЛОБАЛЬНЕ ГОРИЗОНТАЛЬНЕ МЕНЮ ВКЛАДОК
+# ГОЛОВНИЙ ЕКРАН: Вкладки термінала
 tab_home, tab_market_mgmt, tab_analytics, tab_macro, tab_params, tab_quotes, tab_history = st.tabs([
     "🏠 Головна", 
     "📊 Ринк-Менеджмент", 
@@ -260,4 +268,4 @@ with tab_history:
         st.info("Історія угод порожня.")
 
 st.markdown("---")
-st.success("🚀 BitTherium 1.0 успішно оновлено: логотип розміщено у верхньому лівому кутку сайдбара, а під ним — солідний компактний підпис!")
+st.success("🚀 BitTherium 1.0 успішно оновлено: збільшений логотип на прозорому фоні розміщено поруч із назвою BitTherium у сайдбарі!")
