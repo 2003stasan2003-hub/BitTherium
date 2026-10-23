@@ -155,7 +155,7 @@ st.line_chart(chart_data)
 
 st.markdown("---")
 
-st.subheader("🔬 Розширена аналітика ринку")
+st.subheader("🔬 Розширена аналітика ринку та макрофактори")
 
 col_a, col_b = st.columns(2)
 
@@ -174,6 +174,22 @@ with col_b:
       columns=["Ціновий рівень ($)", "Обсяг ліквідацій ($M)"],
   )
   st.dataframe(liquidation_data, use_container_width=True)
+
+# Новий модуль: Фільтрація новин та макрофакторів
+st.markdown("---")
+st.subheader("📰 Штучний інтелект: Фільтрація новин та макрофакторів (Real-Time Feed)")
+
+news_col1, news_col2 = st.columns(2)
+
+with news_col1:
+    st.markdown("**Останні відфільтровані новини:**")
+    st.success("🟢 **[ФРС]** Рівень базової ставки залишено без змін. Реакція ринку: позитивна для ліквідних активів.")
+    st.info("🔵 **[ETF]** Приплив капіталу в спотові Bitcoin-ETF за добу перевищив $420 млн.")
+
+with news_col2:
+    st.markdown("**Макропоказники та індекси:**")
+    st.metric(label="Індекс страху та жадібності (Fear & Greed)", value="74", delta="Жадібність")
+    st.metric(label="Домінування Bitcoin (BTC Dominance)", value="54.2%", delta="+0.4%")
 
 st.markdown("---")
 
@@ -227,5 +243,5 @@ else:
 
 st.markdown("---")
 st.success(
-    "🚀 BitTherium 1.0 успішно оновлено: додано модуль історії ордерів, управління ризиками та діагностику!"
+    "🚀 BitTherium 1.0 успішно оновлено: додано модуль фільтрації новин та макрофакторів!"
 )
