@@ -35,20 +35,6 @@ st.markdown(
         background-color: #ff4b4b !important;
         color: white !important;
     }
-    /* Стиль для фірмового круглого логотипа BitTherium */
-    .brand-logo {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 55px;
-        height: 55px;
-        background: linear-gradient(135deg, #f7931a 0%, #627eea 100%);
-        border-radius: 50%;
-        color: white;
-        font-size: 24px;
-        font-weight: bold;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-    }
     @media (max-width: 768px) {
         .stMetric {
             margin-bottom: 10px;
@@ -59,16 +45,19 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# Відновлений фірмовий дизайн заголовка з круглим логотипом
+# Шапка термінала: фірмовий логотип (зображення) + назва
 col_logo, col_title = st.columns([1, 11])
 with col_logo:
-    st.markdown('<div class="brand-logo">₿Ξ</div>', unsafe_allow_html=True)
+    if os.path.exists("logo.png"):
+        st.image("logo.png", width=50)
+    else:
+        st.markdown("### ₿Ξ")
 with col_title:
     st.title("BitTherium 1.0 — Професійний Криптотрейдинговий Термінал")
 
 st.markdown("---")
 
-# Підключення до стабільного публічного API CoinGecko без гео-блокувань
+# Підключення до стабільного публічного API CoinGecko
 @st.cache_data(ttl=15)
 def get_live_prices():
     try:
@@ -115,29 +104,13 @@ if 'system_active' not in st.session_state:
 if 'price_alerts' not in st.session_state:
     st.session_state.price_alerts = []
 
+# Сайдбар (Системне керування та безпека)
 with st.sidebar:
   st.header("⚙️ Керування системою")
   if live_data['success']:
-      st.markdown(
-          "**Статус з'єднання:** <span style='color:green;'>● Онлайн (Живі дані API)</span>",
-          unsafe_allow_html=True,
-      )
+      st.markdown("**Статус з'єднання:** <span style='color:green;'>● Онлайн (Живі дані)</span>", unsafe_allow_html=True)
   else:
-      st.markdown(
-          "**Статус з'єднання:** <span style='color:orange;'>● Режим офлайн (Резервні дані)</span>",
-          unsafe_allow_html=True,
-      )
-
-  if has_keys:
-    st.markdown(
-        "**API-ключі:** <span style='color:green;'>● Завантажено (.env)</span>",
-        unsafe_allow_html=True,
-    )
-  else:
-    st.markdown(
-        "**API-ключі:** <span style='color:orange;'>● Не налаштовано (.env)</span>",
-        unsafe_allow_html=True,
-    )
+      st.markdown("**Статус з'єднання:** <span style='color:orange;'>● Офлайн (Резерв)</span>", unsafe_allow_html=True)
 
   st.markdown("---")
   col1, col2 = st.columns(2)
@@ -148,212 +121,139 @@ with st.sidebar:
 
   if start_btn:
     st.session_state.system_active = True
-    st.success("Термінал запущено в робочий режим.")
+    st.success("Термінал запущено.")
   if stop_btn:
     st.session_state.system_active = False
-    st.warning("Роботу термінала призупинено.")
+    st.warning("Термінал призупинено.")
 
   st.markdown("---")
-  st.subheader("🚨 Безпека та Захист")
-  kill_switch = st.button(
-      "KILL SWITCH", key="kill", help="Екстрене закриття всіх позицій"
-  )
-  if kill_switch:
+  st.subheader("🚨 Безпека")
+  if st.button("KILL SWITCH", key="kill", help="Екстрене закриття позицій"):
     st.session_state.system_active = False
     st.session_state.trade_history = []
-    st.error(
-        "УВАГА: Активовано Kill Switch! Усі торги зупинено, позиції скасовано."
-    )
+    st.error("УВАГА: Активовано Kill Switch!")
 
-st.subheader("📊 Ринкові котирування в реальному часі")
+# ГЛОБАЛЬНЕ ГОРИЗОНТАЛЬНЕ МЕНЮ ВКЛАДОК (як на макеті)
+tab_home, tab_market_mgmt, tab_analytics, tab_macro, tab_params, tab_quotes, tab_history = st.tabs([
+    "🏠 Головна", 
+    "📊 Ринк-Менеджмент", 
+    "📈 Аналітика", 
+    "📰 Макропоказники", 
+    "⚙️ Параметри", 
+    "💱 Котирування", 
+    "📜 Історія / Сесуг"
+])
 
-m1, m2, m3, m4 = st.columns(4)
-m1.metric(label="BTC/USDT", value=f"${live_data['BTC']:,.2f}", delta=f"{live_data['BTC_change']}%")
-m2.metric(label="ETH/USDT", value=f"${live_data['ETH']:,.2f}", delta=f"{live_data['ETH_change']}%")
-m3.metric(label="SOL/USDT", value=f"${live_data['SOL']:,.2f}", delta="Live")
-m4.metric(label="Статус ринку", value="Бичачий", delta="Risk-On")
+with tab_home:
+    st.subheader("📊 Ринкові котирування в реальному часі")
+    m1, m2, m3, m4 = st.columns(4)
+    m1.metric(label="Bitcoin (BTC/USDT)", value=f"${live_data['BTC']:,.2f}", delta=f"{live_data['BTC_change']}%")
+    m2.metric(label="Ethereum (ETH/USDT)", value=f"${live_data['ETH']:,.2f}", delta=f"{live_data['ETH_change']}%")
+    m3.metric(label="Solana (SOL/USDT)", value=f"${live_data['SOL']:,.2f}", delta="Live")
+    m4.metric(label="Статус ринку", value="Бичачий", delta="Risk-On")
 
-st.markdown("---")
+    st.markdown("---")
+    selected_pair = st.selectbox("Виберіть торгову пару для графіка:", ["BTC/USDT", "ETH/USDT", "SOL/USDT"])
+    base_price = live_data['BTC'] if "BTC" in selected_pair else (live_data['ETH'] if "ETH" in selected_pair else live_data['SOL'])
 
-selected_pair = st.selectbox(
-    "Виберіть торгову пару для аналізу:", ["BTC/USDT", "ETH/USDT", "SOL/USDT"]
-)
+    # Інтерактивний графік свічок (Plotly)
+    np.random.seed(42)
+    dates = [pd.Timestamp.now() - pd.Timedelta(hours=i) for i in range(30)][::-1]
+    opens = base_price + np.random.randn(30).cumsum() * (base_price * 0.001)
+    closes = opens + np.random.randn(30) * (base_price * 0.0005)
+    highs = np.maximum(opens, closes) + np.abs(np.random.randn(30)) * (base_price * 0.0003)
+    lows = np.minimum(opens, closes) - np.abs(np.random.randn(30)) * (base_price * 0.0003)
 
-base_price = live_data['BTC'] if "BTC" in selected_pair else (live_data['ETH'] if "ETH" in selected_pair else live_data['SOL'])
+    fig = go.Figure(data=[go.Candlestick(
+        x=dates, open=opens, high=highs, low=lows, close=closes,
+        increasing_line_color='#26a69a', decreasing_line_color='#ef5350'
+    )])
+    fig.update_layout(template="plotly_dark", xaxis_rangeslider_visible=False, height=400, margin=dict(l=10, r=10, t=10, b=10))
+    st.plotly_chart(fig, use_container_width=True)
 
-# Інтерактивний графік свічок через Plotly
-np.random.seed(42)
-dates = [pd.Timestamp.now() - pd.Timedelta(hours=i) for i in range(30)][::-1]
-opens = base_price + np.random.randn(30).cumsum() * (base_price * 0.001)
-closes = opens + np.random.randn(30) * (base_price * 0.0005)
-highs = np.maximum(opens, closes) + np.abs(np.random.randn(30)) * (base_price * 0.0003)
-lows = np.minimum(opens, closes) - np.abs(np.random.randn(30)) * (base_price * 0.0003)
+with tab_market_mgmt:
+    st.subheader("🛡️ Управління ризиками та ботами")
+    r1, r2 = st.columns(2)
+    with r1:
+        st.markdown("**Ризик-менеджмент сесії:**")
+        st.metric(label="Максимальна просадка", value="5.0%")
+        st.metric(label="Стоп-лосс ліміт", value="2.0%")
+        st.metric(label="Трейлінг-симул", value="1.0%")
+    with r2:
+        st.markdown("**Керування ботами:**")
+        bots_data = pd.DataFrame({
+            "Bots": ["BitTherium Bot A", "ScalpeerX"],
+            "Status": ["Active", "Active"],
+            "P&L": ["+2.5%", "+1.1%"]
+        })
+        st.dataframe(bots_data, use_container_width=True)
 
-fig = go.Figure(data=[go.Candlestick(
-    x=dates,
-    open=opens,
-    high=highs,
-    low=lows,
-    close=closes,
-    increasing_line_color='#26a69a',
-    decreasing_line_color='#ef5350'
-)])
+with tab_analytics:
+    st.subheader("🔬 Поглиблена аналітика та ліквідації")
+    a1, a2 = st.columns(2)
+    with a1:
+        st.markdown("### 🐋 Whale Tracking (Smart Money)")
+        st.info("Binance → Хранилище: 1500 BTC ($101.5M USDT)")
+        info_col = "OKX → Coinbase: 50,000 ETH ($12M USDT)"
+        st.warning(info_col)
+    with a2:
+        st.markdown("### 🔥 Ліквідації: Теплова мапа")
+        liq_df = pd.DataFrame(np.random.randint(100, 1000, size=(4, 2)), columns=["Ціновий рівень ($)", "Обсяг ($M)"])
+        st.dataframe(liq_df, use_container_width=True)
 
-fig.update_layout(
-    title=f"Інтерактивний графік свічок ({selected_pair})",
-    template="plotly_dark",
-    xaxis_rangeslider_visible=False,
-    height=450,
-    margin=dict(l=10, r=10, t=30, b=10)
-)
+with tab_macro:
+    st.subheader("📰 AI Macro Новини та Макрофактори")
+    n1, n2 = st.columns(2)
+    with n1:
+        st.success("🟢 **[ФРС]** Реакція ринку на збереження ставки позитивна.")
+        st.info("🔵 **[ETF]** Приплив капіталу в спотові Bitcoin-ETF тримається на високому рівні.")
+    with n2:
+        st.metric(label="Індекс страху та жадібності", value="74", delta="Жадібність")
+        st.metric(label="Домінування Bitcoin", value="54.2%", delta="+0.4%")
 
-st.plotly_chart(fig, use_container_width=True)
+with tab_params:
+    st.subheader("⚙️ Параметри та цінові алерти")
+    p1, p2 = st.columns(2)
+    with p1:
+        alert_target = st.number_input("Цільова ціна для сповіщення ($):", min_value=0.0, value=float(live_data['BTC'] * 1.02))
+        if st.button("➕ Додати алерт"):
+            st.session_state.price_alerts.append({"Пара": "BTC/USDT", "Ціль": alert_target})
+            st.success("Алерт додано!")
+    with p2:
+        if st.session_state.price_alerts:
+            st.dataframe(pd.DataFrame(st.session_state.price_alerts), use_container_width=True)
+        else:
+            st.info("Немає активних алертів.")
 
-st.markdown("---")
+with tab_quotes:
+    st.subheader("💱 Швидке виконання ордерів")
+    t1, t2, t3 = st.columns(3)
+    with t1:
+        amount = st.number_input("Обсяг (USDT):", min_value=10.0, value=100.0)
+    with t2:
+        stop_loss = st.number_input("Stop-Loss ($):", value=float(live_data['BTC'] * 0.95))
+        take_profit = st.number_input("Take-Profit ($):", value=float(live_data['BTC'] * 1.05))
+    with t3:
+        st.markdown("### Дії")
+        b_btn = st.button("🟢 BUY / LONG", use_container_width=True, disabled=not st.session_state.system_active)
+        s_btn = st.button("🔴 SELL / SHORT", use_container_width=True, disabled=not st.session_state.system_active)
+        
+        if b_btn:
+            st.session_state.trade_history.insert(0, {"Тип": "BUY", "Ціна": live_data['BTC'], "Обсяг": amount})
+            st.success("Ордер BUY виконано!")
+        if s_btn:
+            st.session_state.trade_history.insert(0, {"Тип": "SELL", "Ціна": live_data['BTC'], "Обсяг": amount})
+            st.error("Ордер SELL виконано!")
 
-# Модуль: Налаштування цінових сповіщень (Price Alerts)
-st.subheader("🔔 Система цінових сповіщень (Price Alerts)")
-alert_col1, alert_col2 = st.columns([2, 1])
-
-with alert_col1:
-    alert_target = st.number_input("Цільова ціна для сповіщення ($):", min_value=0.0, value=float(base_price * 1.02))
-
-with alert_col2:
-    st.markdown("### Дія")
-    set_alert_btn = st.button("➕ Додати алерт", use_container_width=True)
-
-if set_alert_btn:
-    st.session_state.price_alerts.append({"Пара": selected_pair, "Ціль": alert_target, "Поточна": base_price})
-    st.success(f"Алерт успішно встановлено для {selected_pair} на рівні ${alert_target:,.2f}!")
-
-if st.session_state.price_alerts:
-    st.markdown("**Активні сповіщення сесії:**")
-    alerts_df = pd.DataFrame(st.session_state.price_alerts)
-    st.dataframe(alerts_df, use_container_width=True)
-
-st.markdown("---")
-
-st.subheader("🔬 Розширена аналітика ринку та макрофактори")
-
-col_a, col_b = st.columns(2)
-
-with col_a:
-  st.markdown("### 🐋 Трекінг китів (Smart Money)")
-  st.info(
-      "Виявлено великий переказ: **5,000 BTC** ($337M) переміщено на холодний"
-      " гаманець біржі."
-  )
-  st.warning("Тиск покупців: Високий (68% лонг-позицій)")
-
-with col_b:
-  st.markdown("### 🔥 Теплова мапа ліквідацій")
-  liquidation_data = pd.DataFrame(
-      np.random.randint(100, 1000, size=(5, 2)),
-      columns=["Ціновий рівень ($)", "Обсяг ліквідацій ($M)"],
-  )
-  st.dataframe(liquidation_data, use_container_width=True)
-
-st.markdown("---")
-st.subheader("🛡️ Глобальний контекст циклів та система захисту портфеля")
-
-cycle_col1, cycle_col2 = st.columns(2)
-with cycle_col1:
-    st.markdown("**Макроконтекст (Цикл халвінгів):**")
-    st.success("📈 **Фаза ринку:** Постхалвінговий бичачий цикл (Зона накопичення ліквідності).")
-with cycle_col2:
-    st.markdown("**Контроль ризиків (Ліміт сесії):**")
-    st.metric(label="Максимальний допустимий збиток", value="3.0%", delta="Безпечно (Ліміт активний)")
-
-st.markdown("---")
-st.subheader("📈 Технічні індикатори та математичні фільтри (RSI / Обсяги)")
-
-ind_col1, ind_col2, ind_col3 = st.columns(3)
-with ind_col1:
-    st.metric(label="RSI (14) - Імпульс", value="58.4", delta="Нейтрально (Зона росту)")
-with ind_col2:
-    st.metric(label="MACD Фільтр", value="Бичаче перетин", delta="Trend UP")
-with ind_col3:
-    st.metric(label="Обсяг торгів (24h)", value="$28.4B", delta="Високий тиск")
-
-st.markdown("---")
-st.subheader("📰 Штучний інтелект: Фільтрація новин та макрофакторів (Real-Time Feed)")
-
-news_col1, news_col2 = st.columns(2)
-
-with news_col1:
-    st.markdown("**Останні відфільтровані новини:**")
-    st.success("🟢 **[ФРС]** Рівень базової ставки залишено без змін. Реакція ринку: позитивна.")
-    st.info("🔵 **[ETF]** Приплив капіталу в спотові Bitcoin-ETF за добу перевищив $420 млн.")
-
-with news_col2:
-    st.markdown("**Макропоказники та індекси:**")
-    st.metric(label="Індекс страху та жадібності (Fear & Greed)", value="74", delta="Жадібність")
-    st.metric(label="Домінування Bitcoin (BTC Dominance)", value="54.2%", delta="+0.4%")
+with tab_history:
+    st.subheader("📜 Історія ордерів та сесуг")
+    if st.session_state.trade_history:
+        h_df = pd.DataFrame(st.session_state.trade_history)
+        st.dataframe(h_df, use_container_width=True)
+        csv = h_df.to_csv(index=False).encode('utf-8')
+        st.download_button("📥 Експортувати у CSV", data=csv, file_name="history.csv", mime="text/csv")
+    else:
+        st.info("Історія угод порожня.")
 
 st.markdown("---")
-
-st.subheader("⚡ Панель виконання ордерів (Trading Execution)")
-
-trade_col1, trade_col2, trade_col3 = st.columns(3)
-
-with trade_col1:
-    order_type = st.radio("Тип ордера:", ["Market", "Limit"])
-    amount = st.number_input("Обсяг (USDT):", min_value=10.0, value=100.0)
-
-with trade_col2:
-    stop_loss = st.number_input("Stop-Loss ($):", min_value=0.0, value=float(base_price * 0.95))
-    take_profit = st.number_input("Take-Profit ($):", min_value=0.0, value=float(base_price * 1.05))
-
-with trade_col3:
-    st.markdown("### Дії")
-    buy_btn = st.button("🟢 BUY / LONG", use_container_width=True, disabled=not st.session_state.system_active)
-    sel_btn = st.button("🔴 SELL / SHORT", use_container_width=True, disabled=not st.session_state.system_active)
-
-if not st.session_state.system_active:
-    st.warning("⚠️ Торговий термінал зупинено або спрацював захисний Kill Switch.")
-
-if buy_btn and st.session_state.system_active:
-    st.session_state.trade_history.insert(0, {
-        "Тип": "BUY / LONG",
-        "Пара": selected_pair,
-        "Ціна входу": base_price,
-        "Обсяг (USDT)": amount,
-        "Stop-Loss": stop_loss,
-        "Take-Profit": take_profit
-    })
-    st.success(f"Виконано ордер BUY для {selected_pair} на суму {amount} USDT.")
-
-if sel_btn and st.session_state.system_active:
-    st.session_state.trade_history.insert(0, {
-        "Тип": "SELL / SHORT",
-        "Пара": selected_pair,
-        "Ціна входу": base_price,
-        "Обсяг (USDT)": amount,
-        "Stop-Loss": stop_loss,
-        "Take-Profit": take_profit
-    })
-    st.error(f"Виконано ордер SELL для {selected_pair} на суму {amount} USDT.")
-
-# Виведення таблиці історії ордерів з можливістю експорту
-st.markdown("---")
-st.subheader("📜 Історія ордерів поточної сесії")
-if st.session_state.trade_history:
-    history_df = pd.DataFrame(st.session_state.trade_history)
-    st.dataframe(history_df, use_container_width=True)
-    
-    # Додано кнопку збереження (експорту) історії
-    csv_data = history_df.to_csv(index=False).encode('utf-8')
-    st.download_button(
-        label="📥 Експортувати історію у CSV",
-        data=csv_data,
-        file_name='bittherium_trade_history.csv',
-        mime='text/csv',
-        use_container_width=True
-    )
-else:
-    st.info("Поки що немає виконаних ордерів у цій сесії.")
-
-st.markdown("---")
-st.success(
-    "🚀 BitTherium 1.0 успішно оновлено: повернено фірмовий логотип ₿Ξ та додано експорт історії ордерів у CSV!"
-)
+st.success("🚀 BitTherium 1.0 успішно оновлено до фінальної версії з горизонтальним меню вкладок та підтримкою логотипа!")
